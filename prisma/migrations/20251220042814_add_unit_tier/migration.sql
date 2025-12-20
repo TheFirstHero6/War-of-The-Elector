@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "ArmyUnit" ADD COLUMN "tier" INTEGER NOT NULL DEFAULT 2;
+

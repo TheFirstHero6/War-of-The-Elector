@@ -152,3 +152,6 @@ export const POPULATION_UNIT_CAP_BY_TIER = {
 
 // Per-unit upkeep cost per turn
 export const PER_UNIT_UPKEEP = { food: 2 };
+
+// Unit upgrade cost (flat rate per upgrade)
+export const UNIT_UPGRADE_COST = 20;

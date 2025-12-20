@@ -1134,6 +1134,238 @@ export default function RulesPage() {
           </div>
         </div>
 
+        {/* Combat Mechanics Section */}
+        <div className="border border-[var(--theme-border)] rounded-lg p-8 md:p-12 mb-12">
+          <h2 className="font-[Cinzel] text-3xl text-[var(--theme-gold)] mb-8 uppercase text-center">
+            ⚔️ Combat Mechanics & Unit Stats
+          </h2>
+
+          <div className="space-y-8">
+            <div>
+              <h3 className="font-medieval text-2xl text-medieval-gold-300 mb-4 flex items-center">
+                <span className="text-3xl mr-3">🔄</span>
+                Turn Structure
+              </h3>
+              <p className="font-[Playfair_Display] text-gray-200 mb-4">
+                Each combat turn consists of five phases, executed in order:
+              </p>
+              <div className="bg-gradient-to-r from-background/30 to-background/30 p-6 rounded-lg border border-primary/30 space-y-3">
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">1. Leadership Phase</strong> - Command decisions and strategic planning
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">2. Movement Phase</strong> - Units move across the battlefield
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">3. Shooting Phase</strong> - Ranged units attack
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">4. Charge Phase</strong> - Units declare and execute charges
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">5. Fight Phase</strong> - Melee combat resolution
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-medieval text-2xl text-medieval-gold-300 mb-4 flex items-center">
+                <span className="text-3xl mr-3">⚡</span>
+                Reaction Points
+              </h3>
+              <div className="bg-gradient-to-r from-background/30 to-background/30 p-6 rounded-lg border border-primary/30 space-y-3">
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Determination:</strong> At the beginning of each battle, each player rolls a d4 and adds 1 to determine their reaction points per round. This gives each player 2-5 reaction points per round.
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Usage:</strong> When an enemy unit charges at you, you may spend one of your reaction points to perform a reaction action (such as formations like Square, Turn to Face, etc.). Reaction points allow you to respond defensively to incoming charges.
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Banner Guard Exception:</strong> Banner Guard units can perform reactions for free, without spending a reaction point. This makes them valuable defensive units that can react for free, not counting towards your reaction points that round (Only one time per round).
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-medieval text-2xl text-medieval-gold-300 mb-4 flex items-center">
+                <span className="text-3xl mr-3">🏃</span>
+                Movement Phase
+              </h3>
+              <div className="bg-gradient-to-r from-background/30 to-background/30 p-6 rounded-lg border border-primary/30 space-y-3">
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Standard Movement:</strong> All units have a base movement of 6 inches.
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Cavalry Movement:</strong> Units designated as Cavalry (Light Cav, Heavy Cav, Dragoons) have a base movement of 12 inches.
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Artillery Bonus:</strong> Light Artillery receives +6 inches to movement (total 12 inches).
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-medieval text-2xl text-medieval-gold-300 mb-4 flex items-center">
+                <span className="text-3xl mr-3">🏹</span>
+                Shooting Phase
+              </h3>
+              <div className="bg-gradient-to-r from-background/30 to-background/30 p-6 rounded-lg border border-primary/30 space-y-4">
+                <div>
+                  <strong className="text-medieval-gold-300">Range Limits:</strong>
+                  <ul className="mt-2 space-y-1 ml-4">
+                    <li className="medieval-text">• Matchlock, Dragoons, and Flintlocks: 18"</li>
+                    <li className="medieval-text">• Light Artillery: 24"</li>
+                    <li className="medieval-text">• Medium Artillery: 36"</li>
+                    <li className="medieval-text">• Heavy Artillery: 48"</li>
+                  </ul>
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Attacks:</strong> Base 2 attacks per unit. Medium Artillery receives +1 additional shot per fire.
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Hit Logic:</strong> Roll d20 ≥ Target Number. Target Number is determined by unit Tier (see Unit Tiers section).
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Hit Modifiers:</strong>
+                  <ul className="mt-2 space-y-1 ml-4">
+                    <li>• Matchlocks: +2 to hit when shooting</li>
+                    <li>• Heavy Artillery: Can fire in an arc</li>
+                  </ul>
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Damage:</strong> 1 successful hit = 1 Wound.
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-medieval text-2xl text-medieval-gold-300 mb-4 flex items-center">
+                <span className="text-3xl mr-3">💥</span>
+                Charge Phase
+              </h3>
+              <div className="bg-gradient-to-r from-background/30 to-background/30 p-6 rounded-lg border border-primary/30 space-y-3">
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Mechanic:</strong> Units roll a d6 to determine charge distance in inches (Roll 1 = 1 inch, Roll 6 = 6 inches).
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Eligibility:</strong> Infantry and Cavalry may charge.
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Cavalry Bonus:</strong> Heavy Cav receives a +3 charge bonus (distance/effect context).
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Reactions:</strong> When a unit charges at you, you may spend a reaction point to perform a reaction action (see Reaction Points section). Banner Guard can react for free.
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-medieval text-2xl text-medieval-gold-300 mb-4 flex items-center">
+                <span className="text-3xl mr-3">⚔️</span>
+                Fight Phase (Melee Combat)
+              </h3>
+              <div className="bg-gradient-to-r from-background/30 to-background/30 p-6 rounded-lg border border-primary/30 space-y-4">
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Attacks:</strong> Base 2 attacks per unit.
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Hit Logic:</strong> Roll d20 ≥ Target Number (from Tier system).
+                </div>
+                <div>
+                  <strong className="text-medieval-gold-300">Situational Hit Modifiers (Add to d20 Roll):</strong>
+                  <ul className="mt-2 space-y-1 ml-4">
+                    <li className="medieval-text">• Pikemen: +2 to hit vs. Mounted units</li>
+                    <li className="medieval-text">• Swordsmen: +3 to hit vs. Infantry units</li>
+                    <li className="medieval-text">• Flintlocks: +2 to hit vs. Melee Infantry</li>
+                    <li className="medieval-text">• Cavalry (Charge): +4 to hit if the unit charged this turn</li>
+                  </ul>
+                </div>
+                <div>
+                  <strong className="text-medieval-gold-300">Flanking Bonuses (to Number of Attacks, NOT hit chance):</strong>
+                  <ul className="mt-2 space-y-1 ml-4">
+                    <li className="medieval-text">• Side Charge: +2 to Number of Attacks</li>
+                    <li className="medieval-text">• Back Charge: +3 to Number of Attacks</li>
+                  </ul>
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Damage:</strong> 1 successful hit = 1 Wound. If Wounds ≥ Unit Health, the unit dies.
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-medieval text-2xl text-medieval-gold-300 mb-4 flex items-center">
+                <span className="text-3xl mr-3">🎯</span>
+                Unit Tiers & Hit Targets
+              </h3>
+              <div className="bg-gradient-to-r from-background/30 to-background/30 p-6 rounded-lg border border-primary/30 space-y-4">
+                <p className="font-[Playfair_Display] text-gray-200">
+                  Units can be upgraded through 5 tiers (T1-T5). Units start at Tier 2 when recruited. Higher tier units have better hit chances against lower tier units.
+                </p>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Hit Target System:</strong> The hit target (x+) is determined by the attacker's tier vs. the defender's tier. For example, a Tier 3 unit attacking a Tier 2 unit needs a 7+ to hit, while a Tier 5 unit attacking a Tier 1 unit only needs a 2+.
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Upgrade Cost:</strong> Upgrading a unit costs 20 currency per tier level.
+                </div>
+                <p className="font-[Playfair_Display] text-gray-200 italic text-sm">
+                  Click on any unit in your army roster to view detailed stats at all tiers.
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-medieval text-2xl text-medieval-gold-300 mb-4 flex items-center">
+                <span className="text-3xl mr-3">😰</span>
+                Morale & Unit States
+              </h3>
+              <div className="bg-gradient-to-r from-background/30 to-background/30 p-6 rounded-lg border border-primary/30 space-y-4">
+                <div>
+                  <strong className="text-medieval-gold-300">Morale Checks:</strong>
+                  <p className="medieval-text mt-2">A check is required at the end of the round if:</p>
+                  <ul className="mt-2 space-y-1 ml-4">
+                    <li className="medieval-text">• Unit Health drops below 50%</li>
+                    <li className="medieval-text">• Unit was successfully hit by Artillery</li>
+                  </ul>
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Artillery Debuff:</strong> Hitting a unit causes a -3 penalty to their Morale Check. Heavy Artillery inflicts a permanent flat debuff for the remainder of the game.
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Failure Consequence:</strong> The unit "Breaks" (is removed from play/dies). If the Morale Check failure was caused by damage from a Melee Unit, the broken unit is "Captured" by the attacker rather than simply destroyed.
+                </div>
+                <div className="medieval-text text-sm italic">
+                  Note: Specific morale save mechanics are still being finalized (TBD).
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-medieval text-2xl text-medieval-gold-300 mb-4 flex items-center">
+                <span className="text-3xl mr-3">🛡️</span>
+                Unit Formations
+              </h3>
+              <div className="bg-gradient-to-r from-background/30 to-background/30 p-6 rounded-lg border border-primary/30 space-y-3">
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Condensed:</strong> Immovable. Negates enemy frontal charge bonus. If Pike vs Cav, reflects charge bonus back at Cav. -2 to be hit by ranged.
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Loose:</strong> -4 to Ranged Hit Chance, +4 to Melee Hit Chance.
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Square:</strong> (Cannot be a reaction). Same benefits as Condensed but applies to all sides. Allows missile units to hide inside Pikemen.
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Withdrawal:</strong> Unit retreats one full movement.
+                </div>
+                <div className="medieval-text">
+                  <strong className="text-medieval-gold-300">Turn to Face:</strong> Unit rotates to face incoming enemy.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Call to Action */}
         <div className="medieval-card p-12 text-center animate-slide-up">
           <h2 className="font-medieval text-3xl text-medieval-gold-300 mb-8 glow-text">

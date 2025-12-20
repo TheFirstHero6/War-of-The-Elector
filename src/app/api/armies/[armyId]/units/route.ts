@@ -125,11 +125,17 @@ export async function POST(
 
     // Apply changes transactionally
     const result = await prisma.$transaction(async (tx) => {
-      // Upsert army unit type
-      const existing = await tx.armyUnit.findFirst({ where: { armyId: army.id, unitType } });
+      // Find existing unit with same type and tier 2 (default tier for new units)
+      const existing = await tx.armyUnit.findFirst({ 
+        where: { 
+          armyId: army.id, 
+          unitType,
+          tier: 2
+        } 
+      });
       const unitRow = existing
         ? await tx.armyUnit.update({ where: { id: existing.id }, data: { quantity: existing.quantity + quantity } })
-        : await tx.armyUnit.create({ data: { armyId: army.id, unitType, quantity } });
+        : await tx.armyUnit.create({ data: { armyId: army.id, unitType, quantity, tier: 2 } });
 
       await tx.resource.update({
         where: {

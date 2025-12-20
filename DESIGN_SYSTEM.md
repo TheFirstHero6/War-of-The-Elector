@@ -4,7 +4,7 @@
 
 This document captures the design system and layout patterns from the design for "War of the Elector".
 
-## Color System
+## /home/thefirsthero6/.local/share/fonts/home/thefirsthero6/.local/share/fonts/home/thefirsthero6/.local/share/fontsColor System
 
 ### Primary Colors
 

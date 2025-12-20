@@ -189,6 +189,100 @@ The game uses 6 resources: Currency, Food, Wood, Stone, Metal, Livestock
 - Players can belong to multiple realms, but must select which realm they're currently playing in
 - Players can switch between realms they belong to from the Realms page
 
+**Combat Mechanics:**
+
+**Combat Turn Structure:**
+The game loop consists of 5 phases, executed in order:
+1. Leadership Phase - Command decisions and strategic planning
+2. Movement Phase - Units move across the battlefield
+3. Shooting Phase - Ranged units attack
+4. Charge Phase - Units declare and execute charges
+5. Fight Phase - Melee combat resolution
+
+**Reaction Points:**
+- At the beginning of each battle, each player rolls a d4 and adds 1 to determine their reaction points per round (2-5 reaction points)
+- When an enemy unit charges at you, you may spend one reaction point to perform a reaction action (such as formations like Square, Turn to Face, etc.)
+- Reaction points allow you to respond defensively to incoming charges
+- Banner Guard units can perform reactions for free, without spending a reaction point
+
+**Unit Tiers:**
+- Units start at Tier 2 when recruited
+- Units can be upgraded to Tier 5 (costs 20 currency per upgrade)
+- Higher tier units have better hit chances against lower tier units
+- Hit targets are determined by attacker tier vs defender tier matrix
+
+**Hit Target Matrix (Attacker Tier → Defender Tier):**
+- T1 vs T1: 9+, T1 vs T2: 12+, T1 vs T3: 15+, T1 vs T4: 18+, T1 vs T5: 20+
+- T2 vs T1: 7+, T2 vs T2: 9+, T2 vs T3: 12+, T2 vs T4: 15+, T2 vs T5: 18+
+- T3 vs T1: 5+, T3 vs T2: 7+, T3 vs T3: 9+, T3 vs T4: 12+, T3 vs T5: 15+
+- T4 vs T1: 3+, T4 vs T2: 5+, T4 vs T3: 7+, T4 vs T4: 9+, T4 vs T5: 12+
+- T5 vs T1: 2+, T5 vs T2: 3+, T5 vs T3: 5+, T5 vs T4: 7+, T5 vs T5: 9+
+
+**Movement Phase:**
+- Standard Movement: All units have base movement of 6 inches
+- Cavalry Movement: Light Cav, Heavy Cav, Dragoons have 12 inches
+- Artillery Bonus: Light Artillery receives +6 inches (total 12 inches)
+
+**Shooting Phase:**
+- Range Limits:
+  - Matchlock, Dragoons, and Flintlocks: 18"
+  - Light Artillery: 24"
+  - Medium Artillery: 36"
+  - Heavy Artillery: 48"
+- Attacks: Base 2 attacks per unit. Medium Artillery gets +1 additional shot per fire
+- Hit Logic: Roll d20 ≥ Target Number (from tier matrix)
+- Hit Modifiers:
+  - Matchlocks: +2 to hit when shooting
+  - Heavy Artillery: Can fire in an arc
+- Damage: 1 successful hit = 1 Wound
+
+**Charge Phase:**
+- Mechanic: Units roll d6 to determine charge distance (Roll 1 = 1 inch, Roll 6 = 6 inches)
+- Eligibility: Infantry and Cavalry may charge
+- Cavalry Bonus: Heavy Cav receives +3 charge bonus
+- Reactions: When a unit charges at you, you may spend a reaction point to perform a reaction action. Banner Guard can react for free
+
+**Fight Phase (Melee Combat):**
+- Attacks: Base 2 attacks per unit
+- Hit Logic: Roll d20 ≥ Target Number (from tier matrix)
+- Situational Hit Modifiers (Add to d20 Roll):
+  - Pikemen: +2 to hit vs. Mounted units
+  - Swordsmen: +3 to hit vs. Infantry units
+  - Flintlocks: +2 to hit vs. Melee Infantry
+  - Cavalry (Charge): +4 to hit if the unit charged this turn
+- Flanking Bonuses (to Number of Attacks, NOT hit chance):
+  - Side Charge: +2 to Number of Attacks
+  - Back Charge: +3 to Number of Attacks
+- Damage: 1 successful hit = 1 Wound. If Wounds ≥ Unit Health, the unit dies
+
+**Unit Health & Special Abilities:**
+- Militia: 16 HP, no special abilities
+- Pikemen: 16 HP, 2+ to hit mounted units
+- Swordsmen: 16 HP, 3+ to hit infantry units
+- Matchlocks: 8 HP, 2+ to hit shooting
+- Flintlocks: 8 HP, 2+ to hit (m) infantry units
+- Dragoons: 5 HP, Dismount and Shoot
+- Light Cav: 7 HP, Can run and charge
+- Heavy Cav: 9 HP, +3 charge bonus
+- Banner Guard: 12 HP, Free Reaction (can perform reactions without spending reaction points)
+- Artillery: 5 HP, Hit Unit = -3 Morale Check
+- Light Artillery: +6" move bonus
+- Medium Artillery: Additional Shot per fire
+- Heavy Artillery: Can fire in an arc
+
+**Morale Checks:**
+- Triggers: Unit Health drops below 50%, or unit was successfully hit by Artillery
+- Artillery Debuff: General Artillery causes -3 penalty to Morale Check. Heavy Artillery inflicts permanent flat debuff
+- Failure Consequence: Unit "Breaks" (removed from play/dies). If broken by Melee Unit, unit is "Captured" by attacker
+- Note: Specific morale save mechanics are still being finalized (TBD)
+
+**Unit Formations:**
+- Condensed: Immovable. Negates enemy frontal charge bonus. If Pike vs Cav, reflects charge bonus back at Cav. -2 to be hit by ranged
+- Loose: -4 to Ranged Hit Chance, +4 to Melee Hit Chance
+- Square: (Cannot be a reaction). Same benefits as Condensed but applies to all sides. Allows missile units to hide inside Pikemen
+- Withdrawal: Unit retreats one full movement
+- Turn to Face: Unit rotates to face incoming enemy
+
 `;
 
 export async function POST(req: Request) {

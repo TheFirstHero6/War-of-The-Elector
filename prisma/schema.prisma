@@ -118,6 +118,7 @@ model ArmyUnit {
   army      Army     @relation(fields: [armyId], references: [id])
   unitType  String
   quantity  Int      @default(0)
+  tier      Int      @default(2)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

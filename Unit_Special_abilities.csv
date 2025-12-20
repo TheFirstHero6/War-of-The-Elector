@@ -1,0 +1,11 @@
+Unit Type,Health,Effects
+Militia,16,-
+Pikemen,16,2+ to hit mounted units
+Swordsmen,16,3+ to hit infantry units
+Matchlocks,8,2+ to hit shooting
+Flintlocks,8,2+ to hit (m) infantry units
+Dragoons,5,Dismount and Shoot
+Light Cav,7,Can run and charge
+Heavy Cav,9,+3 charge bonus
+Banner Guard,12,Free Reaction
+Artillery,5,Hit Unit = - 3 Morale Check
