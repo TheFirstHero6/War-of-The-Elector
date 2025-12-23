@@ -1181,7 +1181,7 @@ export default function RulesPage() {
                   <strong className="text-medieval-gold-300">Usage:</strong> When an enemy unit charges at you, you may spend one of your reaction points to perform a reaction action (such as formations like Square, Turn to Face, etc.). Reaction points allow you to respond defensively to incoming charges.
                 </div>
                 <div className="medieval-text">
-                  <strong className="text-medieval-gold-300">Banner Guard Exception:</strong> Banner Guard units can perform reactions for free, without spending a reaction point. This makes them valuable defensive units that can react for free, not counting towards your reaction points that round (Only one time per round).
+                  <strong className="text-medieval-gold-300">Banner Guard Exception:</strong> Banner Guard units can perform reactions for free, without spending a reaction point. This makes them valuable defensive units that can react for free, not counting towards your reaction points that round (Only one time per round). Note: Banner Guard is a type of cavalry and receives all normal cavalry bonuses (including +4 to hit when charging) in addition to its Banner Guard abilities.
                 </div>
               </div>
             </div>
@@ -1277,7 +1277,7 @@ export default function RulesPage() {
                     <li className="medieval-text">• Pikemen: +2 to hit vs. Mounted units</li>
                     <li className="medieval-text">• Swordsmen: +3 to hit vs. Infantry units</li>
                     <li className="medieval-text">• Flintlocks: +2 to hit vs. Melee Infantry</li>
-                    <li className="medieval-text">• Cavalry (Charge): +4 to hit if the unit charged this turn</li>
+                    <li className="medieval-text">• Cavalry (Charge): +4 to hit if the unit charged this turn (includes Banner Guard, as it is a type of cavalry)</li>
                   </ul>
                 </div>
                 <div>
@@ -1300,7 +1300,7 @@ export default function RulesPage() {
               </h3>
               <div className="bg-gradient-to-r from-background/30 to-background/30 p-6 rounded-lg border border-primary/30 space-y-4">
                 <p className="font-[Playfair_Display] text-gray-200">
-                  Units can be upgraded through 5 tiers (T1-T5). Units start at Tier 2 when recruited. Higher tier units have better hit chances against lower tier units.
+                  Units can be upgraded through 5 tiers (T1-T5). Most units start at Tier 2 when recruited. Artillery units (Light, Medium, Heavy) automatically start at Tier 3, and Banner Guard automatically starts at Tier 5. Higher tier units have better hit chances against lower tier units.
                 </p>
                 <div className="medieval-text">
                   <strong className="text-medieval-gold-300">Hit Target System:</strong> The hit target (x+) is determined by the attacker's tier vs. the defender's tier. For example, a Tier 3 unit attacking a Tier 2 unit needs a 7+ to hit, while a Tier 5 unit attacking a Tier 1 unit only needs a 2+.

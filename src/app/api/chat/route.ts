@@ -215,8 +215,10 @@ The game loop consists of 5 phases, executed in order:
 - Banner Guard units can perform reactions for free, without spending a reaction point
 
 **Unit Tiers:**
-- Units start at Tier 2 when recruited (default tier)
-- Units can be upgraded individually from Tier 2 to Tier 5 (costs 20 currency per upgrade level)
+- Most units start at Tier 2 when recruited (default tier)
+- Artillery units (Light, Medium, Heavy) automatically start at Tier 3 when recruited
+- Banner Guard automatically starts at Tier 5 when recruited
+- Units can be upgraded individually (costs 20 currency per upgrade level)
 - Each unit in an army has its own tier - units of the same type can have different tiers
 - Higher tier units have better hit chances against lower tier units
 - Hit targets are determined by attacker tier vs defender tier matrix
@@ -277,7 +279,8 @@ The game loop consists of 5 phases, executed in order:
 - Dragoons: 5 HP, Dismount and Shoot
 - Light Cav: 7 HP, Can run and charge
 - Heavy Cav: 9 HP, +3 charge bonus
-- Banner Guard: 12 HP, Free Reaction (can perform reactions without spending reaction points)
+- Banner Guard: 12 HP, Free Reaction (can perform reactions without spending reaction points), +4 to hit if charged (cavalry bonus)
+  - Note: Banner Guard is a type of cavalry and receives both Banner Guard bonuses AND normal cavalry bonuses
 - Artillery: 5 HP, Hit Unit = -3 Morale Check
 - Light Artillery: +6" move bonus
 - Medium Artillery: Additional Shot per fire

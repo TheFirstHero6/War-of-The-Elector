@@ -98,6 +98,12 @@ export function getUnitSpecialAbilities(unitType: string): string {
   const mappedType = UNIT_TYPE_MAP[unitType] || unitType;
   const baseAbility = UNIT_STATS[mappedType]?.specialAbilities || "-";
   
+  // Banner Guard gets both Banner Guard bonuses AND cavalry bonuses
+  if (unitType === "Banner Guard") {
+    const cavalryBonus = "+4 to hit if charged"; // Cavalry charge bonus
+    return baseAbility + `; ${cavalryBonus}`;
+  }
+  
   // Add artillery-specific abilities
   if (unitType === "Light Artilery" || unitType === "Medium Artilery" || unitType === "Heavy Artilery") {
     const artyType = unitType === "Light Artilery" ? "Light Arty" : 

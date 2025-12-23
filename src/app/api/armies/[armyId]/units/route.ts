@@ -1,6 +1,6 @@
 import { currentUser } from "@clerk/nextjs/server";
 import prisma from "@/app/lib/db";
-import { UNIT_COSTS, POPULATION_UNIT_CAP_BY_TIER } from "@/app/lib/game-config";
+import { UNIT_COSTS, POPULATION_UNIT_CAP_BY_TIER, getDefaultUnitTier } from "@/app/lib/game-config";
 import { NextResponse } from "next/server";
 
 function sumResources(items: Array<Partial<Record<keyof typeof UNIT_COSTS[keyof typeof UNIT_COSTS], number>>>) {
@@ -125,17 +125,20 @@ export async function POST(
 
     // Apply changes transactionally
     const result = await prisma.$transaction(async (tx) => {
-      // Find existing unit with same type and tier 2 (default tier for new units)
+      // Get default tier for this unit type (Artillery = 3, Banner Guard = 5, others = 2)
+      const defaultTier = getDefaultUnitTier(unitType);
+      
+      // Find existing unit with same type and default tier
       const existing = await tx.armyUnit.findFirst({ 
         where: { 
           armyId: army.id, 
           unitType,
-          tier: 2
+          tier: defaultTier
         } 
       });
       const unitRow = existing
         ? await tx.armyUnit.update({ where: { id: existing.id }, data: { quantity: existing.quantity + quantity } })
-        : await tx.armyUnit.create({ data: { armyId: army.id, unitType, quantity, tier: 2 } });
+        : await tx.armyUnit.create({ data: { armyId: army.id, unitType, quantity, tier: defaultTier } });
 
       await tx.resource.update({
         where: {

@@ -159,3 +159,18 @@ export const PER_UNIT_UPKEEP = { food: 2 };
 
 // Unit upgrade cost (flat rate per upgrade)
 export const UNIT_UPGRADE_COST = 20;
+
+// Default tier for units when recruited
+// Artillery units start at Tier 3, Banner Guard starts at Tier 5, all others start at Tier 2
+export function getDefaultUnitTier(unitType) {
+  // Check for artillery units
+  if (unitType === "Light Artilery" || unitType === "Medium Artilery" || unitType === "Heavy Artilery") {
+    return 3;
+  }
+  // Check for Banner Guard
+  if (unitType === "Banner Guard") {
+    return 5;
+  }
+  // All other units start at Tier 2
+  return 2;
+}

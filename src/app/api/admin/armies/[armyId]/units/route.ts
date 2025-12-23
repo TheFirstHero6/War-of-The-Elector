@@ -1,6 +1,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import prisma from "@/app/lib/db";
 import { NextResponse } from "next/server";
+import { getDefaultUnitTier } from "@/app/lib/game-config";
 
 async function requireRealmAdmin(realmId: string) {
   const clerkUser = await currentUser();
@@ -50,16 +51,19 @@ export async function POST(request: Request, context: { params: Promise<{ armyId
       return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
     }
     
+    // Get default tier for this unit type (Artillery = 3, Banner Guard = 5, others = 2)
+    const defaultTier = getDefaultUnitTier(unitType);
+    
     const existing = await prisma.armyUnit.findFirst({ 
       where: { 
         armyId, 
         unitType,
-        tier: 2
+        tier: defaultTier
       } 
     });
     const unit = existing
       ? await prisma.armyUnit.update({ where: { id: existing.id }, data: { quantity: existing.quantity + quantity } })
-      : await prisma.armyUnit.create({ data: { armyId, unitType, quantity, tier: 2 } });
+      : await prisma.armyUnit.create({ data: { armyId, unitType, quantity, tier: defaultTier } });
     return new Response(JSON.stringify({ success: true, unit }), { status: 200 });
   } catch (error: any) {
     console.error("Admin add units error", error);
