@@ -97,24 +97,28 @@ export const MAX_BUILDINGS_PER_CITY = 4;
 // Building costs (for reference)
 export const BUILDING_COSTS = {
   Sawmill: {
-    currency: 100,
-    wood: 0,
-    stone: 0,
+    currency: 50,
+    wood: 20,
+    stone: 10,
     metal: 0,
     food: 0,
     livestock: 0,
   },
-  Quarry: { currency: 100, wood: 0, stone: 0, metal: 0, food: 0, livestock: 0 },
-  Forge: { currency: 150, wood: 50, stone: 0, metal: 0, food: 0, livestock: 0 },
-  Farm: { currency: 80, wood: 20, stone: 0, metal: 0, food: 0, livestock: 0 },
+  Quarry: { currency: 50, wood: 20, stone: 0, metal: 0, food: 0, livestock: 0 },
+  Forge: { currency: 150, wood: 30, stone: 30, metal: 0, food: 0, livestock: 0 },
+  Farm: { currency: 50, wood: 20, stone: 0, metal: 0, food: 0, livestock: 0 },
+  Pastures: { currency: 50, wood: 20, stone: 0, metal: 0, food: 10, livestock: 0 },
+  "Infantry Barracks": { currency: 50, wood: 20, stone: 20, metal: 10, food: 10, livestock: 0 },
+  "Ranged Barracks": { currency: 50, wood: 20, stone: 20, metal: 0, food: 10, livestock: 0 },
   Market: {
-    currency: 200,
-    wood: 100,
-    stone: 50,
+    currency: 50,
+    wood: 20,
+    stone: 20,
     metal: 0,
-    food: 0,
+    food: 10,
     livestock: 0,
   },
+  "Cavalry Barracks": { currency: 150, wood: 30, stone: 20, metal: 15, food: 10, livestock: 10 },
 };
 
 // Building upgrade costs - Imperium Fragmentum rules

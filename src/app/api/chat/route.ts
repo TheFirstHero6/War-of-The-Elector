@@ -88,14 +88,14 @@ The game uses 6 resources: Currency, Food, Wood, Stone, Metal, Livestock
 - Market: Tier 1 = 5 Currency, Tier 2 = 10 Currency, Tier 3 = 15 Currency
 
 **Building Costs (Currency, Wood, Stone, Metal, Food, Livestock):**
-- Sawmill: 100 Currency
-- Quarry: 100 Currency
-- Forge: 150 Currency, 50 Wood
-- Farm: 80 Currency, 20 Wood
-- Market: 200 Currency, 100 Wood, 50 Stone
+- Sawmill: 50 Currency, 20 Wood, 10 Stone
+- Quarry: 50 Currency, 20 Wood
+- Forge: 150 Currency, 30 Wood, 30 Stone
+- Farm: 50 Currency, 20 Wood
+- Pastures: 50 Currency, 20 Wood, 10 Food
 - Infantry Barracks: 50 Currency, 20 Wood, 20 Stone, 10 Metal, 10 Food
 - Ranged Barracks: 50 Currency, 20 Wood, 20 Stone, 10 Food
-- Pastures: 50 Currency, 20 Wood
+- Market: 50 Currency, 20 Wood, 20 Stone, 10 Food
 - Cavalry Barracks: 150 Currency, 30 Wood, 20 Stone, 15 Metal, 10 Livestock, 10 Food
 
 **Building Upgrade Costs:**
