@@ -34,7 +34,8 @@ async function requireRealmAdmin(realmId: string) {
 export async function POST(request: Request, context: { params: Promise<{ armyId: string }> }) {
   try {
     const { armyId } = await context.params;
-    const { realmId } = await request.json();
+    const body = await request.json();
+    const { realmId, unitType, quantity } = body;
     
     if (!realmId) {
       return NextResponse.json({ error: "realmId is required" }, { status: 400 });
@@ -45,12 +46,20 @@ export async function POST(request: Request, context: { params: Promise<{ armyId
     if (!armyId || typeof armyId !== "string") {
       return NextResponse.json({ error: "Missing armyId in route" }, { status: 400 });
     }
-    const { unitType, quantity } = await request.json();
-    if (!unitType || !Number.isInteger(quantity) || quantity <= 0) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
-    const existing = await prisma.armyUnit.findFirst({ where: { armyId, unitType } });
+    if (!unitType || !Number.isInteger(quantity) || quantity <= 0) {
+      return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    }
+    
+    const existing = await prisma.armyUnit.findFirst({ 
+      where: { 
+        armyId, 
+        unitType,
+        tier: 2
+      } 
+    });
     const unit = existing
       ? await prisma.armyUnit.update({ where: { id: existing.id }, data: { quantity: existing.quantity + quantity } })
-      : await prisma.armyUnit.create({ data: { armyId, unitType, quantity } });
+      : await prisma.armyUnit.create({ data: { armyId, unitType, quantity, tier: 2 } });
     return new Response(JSON.stringify({ success: true, unit }), { status: 200 });
   } catch (error: any) {
     console.error("Admin add units error", error);
@@ -62,7 +71,8 @@ export async function POST(request: Request, context: { params: Promise<{ armyId
 export async function DELETE(request: Request, context: { params: Promise<{ armyId: string }> }) {
   try {
     const { armyId } = await context.params;
-    const { realmId } = await request.json();
+    const body = await request.json();
+    const { realmId, unitType, quantity } = body;
     
     if (!realmId) {
       return NextResponse.json({ error: "realmId is required" }, { status: 400 });
@@ -73,8 +83,10 @@ export async function DELETE(request: Request, context: { params: Promise<{ army
     if (!armyId || typeof armyId !== "string") {
       return NextResponse.json({ error: "Missing armyId in route" }, { status: 400 });
     }
-    const { unitType, quantity } = await request.json();
-    if (!unitType || !Number.isInteger(quantity) || quantity <= 0) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    if (!unitType || !Number.isInteger(quantity) || quantity <= 0) {
+      return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    }
+    
     const existing = await prisma.armyUnit.findFirst({ where: { armyId, unitType } });
     if (!existing) return new Response("Not Found", { status: 404 });
     const newQty = Math.max(0, existing.quantity - quantity);

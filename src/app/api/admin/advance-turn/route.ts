@@ -154,23 +154,23 @@ export async function POST(request: Request) {
           }
         }
 
-        // B. Income & Tax Calculation (New Logic)
-        // Calculate Local Trade income based on City Upgrade Tier
+        // B. Income & Tax Calculation
+        // Step 1: Calculate tax from current wealth (before income)
+        const taxAmount = (city.taxRate / 100) * city.localWealth;
+
+        // Step 2: Give tax to player
+        resourceGains.currency += taxAmount;
+
+        // Step 3: Subtract tax from city wealth
+        const cityWealthAfterTax = city.localWealth - taxAmount;
+
+        // Step 4: Calculate Local Trade income based on City Upgrade Tier
         const localTradeGain =
           CITY_TIER_INCOME[city.upgradeTier as keyof typeof CITY_TIER_INCOME] ||
           0;
 
-        // First, add the income to city's total wealth
-        const cityWealthAfterIncome = city.localWealth + localTradeGain;
-
-        // Calculate tax amount (portion player takes from total city wealth)
-        const taxAmount = (city.taxRate / 100) * cityWealthAfterIncome;
-
-        // Add tax to player currency
-        resourceGains.currency += taxAmount;
-
-        // Calculate final city wealth after tax deduction
-        const finalCityWealth = cityWealthAfterIncome - taxAmount;
+        // Step 5: Add income to city wealth
+        const finalCityWealth = cityWealthAfterTax + localTradeGain;
 
         // Update city's local wealth
         await prisma.city.update({

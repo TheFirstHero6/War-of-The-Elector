@@ -59,14 +59,14 @@ export default function AdminPage() {
   }, [isLoaded, user, currentRealm]);
 
   useEffect(() => {
-    if (userRole === "ADMIN") {
+    if (userRole === "ADMIN" && currentRealm) {
       fetchUsers();
       fetchCities();
       if (selectedUserForArmies) fetchArmies();
       // Also fetch all armies for transfer dropdown
       fetchAllArmies();
     }
-  }, [userRole]);
+  }, [userRole, currentRealm]);
 
   useEffect(() => {
     if (userRole === "ADMIN" && selectedUserForArmies) {
@@ -122,8 +122,9 @@ export default function AdminPage() {
   };
 
   const fetchAllArmies = async () => {
+    if (!currentRealm) return;
     try {
-      const res = await fetch(`/api/admin/armies-all`, { cache: "no-store" });
+      const res = await fetch(`/api/admin/armies-all?realmId=${currentRealm.id}`, { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         setAllArmies(data.armies || []);
@@ -185,6 +186,10 @@ export default function AdminPage() {
       addNotification("error", "Select an army");
       return;
     }
+    if (!currentRealm) {
+      addNotification("error", "Please select a realm");
+      return;
+    }
     try {
       const res = await fetch(`/api/admin/armies/${selectedArmyId}/units`, {
         method,
@@ -192,6 +197,7 @@ export default function AdminPage() {
         body: JSON.stringify({
           unitType: adminUnitType,
           quantity: adminQuantity,
+          realmId: currentRealm.id,
         }),
       });
       if (res.ok || res.status === 204) {
@@ -201,8 +207,20 @@ export default function AdminPage() {
         );
         fetchArmies();
       } else {
-        const txt = await res.text();
-        addNotification("error", txt || "Failed to modify units");
+        const contentType = res.headers.get("content-type");
+        let errorMessage = "Failed to modify units";
+        try {
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await res.json();
+            errorMessage = errorData.error || errorMessage;
+          } else {
+            const txt = await res.text();
+            errorMessage = txt || errorMessage;
+          }
+        } catch (parseError) {
+          errorMessage = `Error ${res.status}: ${res.statusText}`;
+        }
+        addNotification("error", errorMessage);
       }
     } catch (e) {
       console.error(e);
@@ -216,6 +234,11 @@ export default function AdminPage() {
       return;
     }
 
+    if (!currentRealm) {
+      addNotification("error", "Please select a realm");
+      return;
+    }
+
     try {
       setIsTransferringItem(true);
       const res = await fetch("/api/admin/transfer", {
@@ -225,19 +248,34 @@ export default function AdminPage() {
           type: transferType,
           itemID: transferItemId,
           toUserID: transferToUserId,
+          realmId: currentRealm.id,
         }),
       });
-      const data = await res.json();
-
+      
       if (!res.ok) {
-        addNotification("error", data.error || "Transfer Failed");
+        const contentType = res.headers.get("content-type");
+        let errorMessage = "Transfer Failed";
+        try {
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await res.json();
+            errorMessage = errorData.error || errorMessage;
+          } else {
+            const txt = await res.text();
+            errorMessage = txt || errorMessage;
+          }
+        } catch (parseError) {
+          errorMessage = `Error ${res.status}: ${res.statusText}`;
+        }
+        addNotification("error", errorMessage);
         return;
       }
 
+      const data = await res.json();
       addNotification("success", data.message || "Transfer Successful");
 
       fetchCities();
       if (selectedUserForArmies) fetchArmies();
+      fetchAllArmies();
 
       setTransferItemId("");
       setTransferToUserId("");

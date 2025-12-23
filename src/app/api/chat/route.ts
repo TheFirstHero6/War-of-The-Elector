@@ -144,9 +144,18 @@ The game uses 6 resources: Currency, Food, Wood, Stone, Metal, Livestock
 **Building Limits:**
 - All cities can have a maximum of 4 buildings, regardless of tier
 
+**City Tax & Income System:**
+- When a turn is advanced, for each city:
+  1. Tax is calculated from the city's CURRENT wealth: Tax = (taxRate / 100) × currentWealth
+  2. Tax amount is given to the player as Currency
+  3. Tax amount is deducted from city's wealth
+  4. Then, per-turn income is added to city's wealth based on tier (Tier 1 = 10, Tier 2 = 15, Tier 3 = 40, Tier 4 = 55, Tier 5 = 70)
+- Example: City with 100 wealth, Tier 1, 5% tax → Player gets 5 Currency, city wealth becomes 95, then +10 income = 105 final wealth
+- This process happens for every city owned by each player when the turn advances
+
 **Important Notes:**
 - Costs are paid from the player's wealth (Currency and resources), not the city's wealth
-- Income is collected at the start of each turn
+- Tax and income are processed automatically when the turn advances
 - Upkeep must be paid at the start of the turn or armies will mutiny
 - Building production happens each turn based on the building's tier
 
@@ -206,10 +215,14 @@ The game loop consists of 5 phases, executed in order:
 - Banner Guard units can perform reactions for free, without spending a reaction point
 
 **Unit Tiers:**
-- Units start at Tier 2 when recruited
-- Units can be upgraded to Tier 5 (costs 20 currency per upgrade)
+- Units start at Tier 2 when recruited (default tier)
+- Units can be upgraded individually from Tier 2 to Tier 5 (costs 20 currency per upgrade level)
+- Each unit in an army has its own tier - units of the same type can have different tiers
 - Higher tier units have better hit chances against lower tier units
 - Hit targets are determined by attacker tier vs defender tier matrix
+- Units are displayed with tier badges (T1-T5) in the army management interface
+- Click on a unit in your army to see its stats at its current tier
+- Click on a unit in the "Available Unit Types" section to see general stats for all tiers
 
 **Hit Target Matrix (Attacker Tier → Defender Tier):**
 - T1 vs T1: 9+, T1 vs T2: 12+, T1 vs T3: 15+, T1 vs T4: 18+, T1 vs T5: 20+
