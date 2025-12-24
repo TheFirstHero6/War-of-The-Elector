@@ -8,7 +8,7 @@ import { useNotification } from "@/components/Notification";
 import { useRealm } from "@/contexts/RealmContext";
 import RealmRequirement from "@/components/RealmRequirement";
 import UnitStatsModal from "@/components/UnitStatsModal";
-import { UNIT_UPGRADE_COST } from "@/app/lib/game-config";
+import { getUnitUpgradeCost } from "@/app/lib/game-config";
 import { 
   PlusCircleIcon, 
   ArrowUpIcon, 
@@ -375,9 +375,11 @@ export default function ArmiesPage() {
     }
   };
 
-  const upgradeUnit = async (unitId: string, armyId: string) => {
-    if (!resources || resources.currency < UNIT_UPGRADE_COST) {
-      addNotification("error", `You need ${UNIT_UPGRADE_COST} currency to upgrade this unit`);
+  const upgradeUnit = async (unitId: string, armyId: string, currentTier: number) => {
+    const nextTier = currentTier + 1;
+    const upgradeCost = getUnitUpgradeCost(nextTier);
+    if (!resources || resources.currency < upgradeCost) {
+      addNotification("error", `You need ${upgradeCost} currency to upgrade this unit to tier ${nextTier}`);
       return;
     }
     setUpgradingUnitId(unitId);
@@ -900,7 +902,9 @@ export default function ArmiesPage() {
                             {army.units.map((unit: any) => {
                               const src = unitImageMap[unit.unitType];
                               const tier = unit.tier || 2;
-                              const canUpgrade = tier < 5 && resources && resources.currency >= UNIT_UPGRADE_COST;
+                              const nextTier = tier + 1;
+                              const upgradeCost = tier < 5 ? getUnitUpgradeCost(nextTier) : 0;
+                              const canUpgrade = tier < 5 && resources && resources.currency >= upgradeCost;
                               if (!src) return null;
                               
                               return (
@@ -940,7 +944,7 @@ export default function ArmiesPage() {
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        upgradeUnit(unit.id, army.id);
+                                        upgradeUnit(unit.id, army.id, tier);
                                       }}
                                       disabled={!canUpgrade || upgradingUnitId === unit.id}
                                       className={`w-full text-xs px-3 py-2 rounded-lg font-medium transition-all flex items-center justify-center gap-1 ${

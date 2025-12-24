@@ -1,7 +1,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import prisma from "@/app/lib/db";
 import { NextResponse } from "next/server";
-import { UNIT_UPGRADE_COST } from "@/app/lib/game-config";
+import { getUnitUpgradeCost } from "@/app/lib/game-config";
 
 export async function POST(
   request: Request,
@@ -57,6 +57,9 @@ export async function POST(
       );
     }
 
+    const nextTier = currentTier + 1;
+    const upgradeCost = getUnitUpgradeCost(nextTier);
+
     const userResource = await prisma.resource.findUnique({
       where: {
         realmId_userId: {
@@ -73,16 +76,14 @@ export async function POST(
       );
     }
 
-    if (userResource.currency < UNIT_UPGRADE_COST) {
+    if (userResource.currency < upgradeCost) {
       return NextResponse.json(
         {
-          error: `You need ${UNIT_UPGRADE_COST} currency to upgrade this unit. You have ${userResource.currency.toFixed(2)}.`,
+          error: `You need ${upgradeCost} currency to upgrade this unit to tier ${nextTier}. You have ${userResource.currency.toFixed(2)}.`,
         },
         { status: 400 }
       );
     }
-
-    const nextTier = currentTier + 1;
 
     await prisma.$transaction(async (tx) => {
       await tx.resource.update({
@@ -93,7 +94,7 @@ export async function POST(
           },
         },
         data: {
-          currency: { decrement: UNIT_UPGRADE_COST },
+          currency: { decrement: upgradeCost },
         },
       });
 

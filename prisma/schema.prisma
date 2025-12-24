@@ -60,17 +60,18 @@ model RealmMember {
 }
 
 model Resource {
-  id        String   @id @default(cuid())
-  userId    String
-  realmId   String
-  user      User     @relation(fields: [userId], references: [id])
-  realm     Realm    @relation(fields: [realmId], references: [id], onDelete: Cascade)
-  wood      Int      @default(0)
-  stone     Int      @default(0)
-  food      Int      @default(0)
-  currency  Float    @default(0)
-  metal     Int      @default(0)
-  livestock Int      @default(0)
+  id                          String   @id @default(cuid())
+  userId                      String
+  realmId                     String
+  user                        User     @relation(fields: [userId], references: [id])
+  realm                       Realm    @relation(fields: [realmId], references: [id], onDelete: Cascade)
+  wood                        Int      @default(0)
+  stone                       Int      @default(0)
+  food                        Int      @default(0)
+  currency                    Float    @default(0)
+  metal                       Int      @default(0)
+  livestock                   Int      @default(0)
+  consecutiveFailedUpkeepTurns Int     @default(0)
   
   @@unique([realmId, userId])
 }

@@ -1,4 +1,5 @@
 // Unit data structures and utilities based on CSV files
+import { getUnitMorale } from "@/app/lib/game-config";
 
 // Hit target matrix: [attackerTier][defenderTier] = hit target (x+)
 // From Tiers_of_all_units.csv
@@ -144,6 +145,7 @@ export interface UnitStats {
   range: string | null;
   movement: number;
   attacks: number;
+  morale: number;
 }
 
 export function getUnitStats(unitType: string, tier: number): UnitStats {
@@ -161,6 +163,7 @@ export function getUnitStats(unitType: string, tier: number): UnitStats {
     range: getUnitRange(unitType),
     movement: getUnitMovement(unitType),
     attacks: 2, // Base 2 attacks
+    morale: getUnitMorale(tier),
   };
 }
 

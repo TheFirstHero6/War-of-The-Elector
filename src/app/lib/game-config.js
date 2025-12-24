@@ -154,11 +154,50 @@ export const POPULATION_UNIT_CAP_BY_TIER = {
   5: 15,
 };
 
-// Per-unit upkeep cost per turn
-export const PER_UNIT_UPKEEP = { food: 2 };
+// Unit tier-based upgrade costs (cost to reach target tier)
+// From Units_upgrade_upkeep_morale.csv
+export const UNIT_TIER_UPGRADE_COSTS = {
+  1: 50,   // Cost to upgrade TO tier 1 (from tier 0/recruitment)
+  2: 100,  // Cost to upgrade TO tier 2
+  3: 150,  // Cost to upgrade TO tier 3
+  4: 300,  // Cost to upgrade TO tier 4
+  5: 500,  // Cost to upgrade TO tier 5
+};
 
-// Unit upgrade cost (flat rate per upgrade)
-export const UNIT_UPGRADE_COST = 20;
+// Unit tier-based upkeep (currency per unit per turn)
+// From Units_upgrade_upkeep_morale.csv
+export const UNIT_TIER_UPKEEP = {
+  1: 5,
+  2: 10,
+  3: 15,
+  4: 30,
+  5: 50,
+};
+
+// Unit tier-based morale
+// From Units_upgrade_upkeep_morale.csv
+export const UNIT_TIER_MORALE = {
+  1: 2,
+  2: 4,
+  3: 8,
+  4: 12,
+  5: 15,
+};
+
+// Helper function to get upgrade cost for a target tier
+export function getUnitUpgradeCost(targetTier) {
+  return UNIT_TIER_UPGRADE_COSTS[targetTier] || 0;
+}
+
+// Helper function to get upkeep cost for a tier
+export function getUnitUpkeep(tier) {
+  return UNIT_TIER_UPKEEP[tier] || 0;
+}
+
+// Helper function to get morale for a tier
+export function getUnitMorale(tier) {
+  return UNIT_TIER_MORALE[tier] || 0;
+}
 
 // Default tier for units when recruited
 // Artillery units start at Tier 3, Banner Guard starts at Tier 5, all others start at Tier 2

@@ -213,8 +213,8 @@ export default function AdminPage() {
           if (contentType && contentType.includes("application/json")) {
             const errorData = await res.json();
             errorMessage = errorData.error || errorMessage;
-          } else {
-            const txt = await res.text();
+      } else {
+        const txt = await res.text();
             errorMessage = txt || errorMessage;
           }
         } catch (parseError) {
@@ -251,7 +251,7 @@ export default function AdminPage() {
           realmId: currentRealm.id,
         }),
       });
-      
+
       if (!res.ok) {
         const contentType = res.headers.get("content-type");
         let errorMessage = "Transfer Failed";

@@ -105,6 +105,10 @@ export default function UnitStatsModal({
                       <div className="text-medieval-gold-300 font-semibold mb-1">Attacks</div>
                       <div className="text-medieval-steel-200">{currentStats.attacks}</div>
                     </div>
+                    <div>
+                      <div className="text-medieval-gold-300 font-semibold mb-1">Morale</div>
+                      <div className="text-medieval-steel-200">{currentStats.morale}</div>
+                    </div>
                     {currentStats.range && (
                       <div>
                         <div className="text-medieval-gold-300 font-semibold mb-1">Range</div>
@@ -147,45 +151,51 @@ export default function UnitStatsModal({
                           <th className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-gold-300">
                             Hit vs T4
                           </th>
-                          <th className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-gold-300">
-                            Hit vs T5
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[1, 2, 3, 4, 5].map((tier) => {
-                          const stats = getUnitStats(unitType, tier);
-                          const isCurrentTier = tier === currentTier;
-                          return (
-                            <tr
-                              key={tier}
-                              className={`${
-                                isCurrentTier
-                                  ? "bg-medieval-gold-600/30 border-2 border-medieval-gold-400"
-                                  : "bg-medieval-steel-800/50 hover:bg-medieval-steel-800"
-                              }`}
-                            >
-                              <td className="border border-medieval-gold-600 px-3 py-2 font-semibold text-medieval-gold-300">
-                                T{tier} {isCurrentTier && "← Current"}
-                              </td>
-                              <td className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-steel-200">
-                                {stats.hitTargets[1]}
-                              </td>
-                              <td className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-steel-200">
-                                {stats.hitTargets[2]}
-                              </td>
-                              <td className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-steel-200">
-                                {stats.hitTargets[3]}
-                              </td>
-                              <td className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-steel-200">
-                                {stats.hitTargets[4]}
-                              </td>
-                              <td className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-steel-200">
-                                {stats.hitTargets[5]}
-                              </td>
-                            </tr>
-                          );
-                        })}
+                        <th className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-gold-300">
+                          Hit vs T5
+                        </th>
+                        <th className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-gold-300">
+                          Morale
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[1, 2, 3, 4, 5].map((tier) => {
+                        const stats = getUnitStats(unitType, tier);
+                        const isCurrentTier = tier === currentTier;
+                        return (
+                          <tr
+                            key={tier}
+                            className={`${
+                              isCurrentTier
+                                ? "bg-medieval-gold-600/30 border-2 border-medieval-gold-400"
+                                : "bg-medieval-steel-800/50 hover:bg-medieval-steel-800"
+                            }`}
+                          >
+                            <td className="border border-medieval-gold-600 px-3 py-2 font-semibold text-medieval-gold-300">
+                              T{tier} {isCurrentTier && "← Current"}
+                            </td>
+                            <td className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-steel-200">
+                              {stats.hitTargets[1]}
+                            </td>
+                            <td className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-steel-200">
+                              {stats.hitTargets[2]}
+                            </td>
+                            <td className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-steel-200">
+                              {stats.hitTargets[3]}
+                            </td>
+                            <td className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-steel-200">
+                              {stats.hitTargets[4]}
+                            </td>
+                            <td className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-steel-200">
+                              {stats.hitTargets[5]}
+                            </td>
+                            <td className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-steel-200">
+                              {stats.morale}
+                            </td>
+                          </tr>
+                        );
+                      })}
                       </tbody>
                     </table>
                   </div>
@@ -226,6 +236,9 @@ export default function UnitStatsModal({
                         </th>
                         <th className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-gold-300">
                           Attacks
+                        </th>
+                        <th className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-gold-300">
+                          Morale
                         </th>
                         {getUnitStats(unitType, 1).range && (
                           <th className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-gold-300">
@@ -268,6 +281,9 @@ export default function UnitStatsModal({
                             </td>
                             <td className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-steel-200">
                               {stats.attacks}
+                            </td>
+                            <td className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-steel-200">
+                              {stats.morale}
                             </td>
                             {stats.range && (
                               <td className="border border-medieval-gold-600 px-3 py-2 text-center text-medieval-steel-200">

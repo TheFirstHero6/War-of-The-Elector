@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import {
   BUILDING_PRODUCTION_RATES,
   CITY_TIER_INCOME,
-  PER_UNIT_UPKEEP,
+  getUnitUpkeep,
 } from "@/app/lib/game-config";
 
 export async function POST(request: Request) {
@@ -179,30 +179,116 @@ export async function POST(request: Request) {
         });
       }
 
-      // C. Upkeep costs for units (per unit per turn) in this realm
-      const unitSum = await prisma.armyUnit.aggregate({
-        _sum: { quantity: true },
-        where: { army: { ownerId: user.id, realmId } },
+      // C. Upkeep costs for units (currency-based, tier-based per unit per turn) in this realm
+      const userUnits = await prisma.armyUnit.findMany({
+        where: { 
+          army: { 
+            ownerId: user.id, 
+            realmId 
+          } 
+        },
+        select: {
+          id: true,
+          tier: true,
+          quantity: true,
+        },
+        orderBy: {
+          tier: 'asc', // Order by tier (lowest first) for disbandment priority
+        },
       });
-      const totalUnits = unitSum._sum.quantity || 0;
-      const upkeepFood = (PER_UNIT_UPKEEP.food || 0) * totalUnits;
+      
+      // Calculate total currency upkeep based on each unit's tier and quantity
+      let totalCurrencyUpkeep = 0;
+      for (const unit of userUnits) {
+        const unitTier = unit.tier ?? 2; // Default to tier 2 if not set
+        const upkeepPerUnit = getUnitUpkeep(unitTier);
+        totalCurrencyUpkeep += upkeepPerUnit * unit.quantity;
+      }
 
-      // Update user's resources with gains minus upkeep (using composite unique key)
-      await prisma.resource.update({
-        where: {
-          realmId_userId: {
-            realmId,
-            userId: user.id,
+      // Calculate currency after gains (before upkeep)
+      const currencyAfterGains = userResource.currency + resourceGains.currency;
+      
+      // Check if player can afford upkeep (currency cannot go negative, 0 means can't pay)
+      const canAffordUpkeep = currencyAfterGains > 0 && currencyAfterGains >= totalCurrencyUpkeep;
+      
+      let finalCurrency = currencyAfterGains;
+      let consecutiveFailedTurns = userResource.consecutiveFailedUpkeepTurns || 0;
+      const unitsToDisband: Array<{ unitId: string; quantityToRemove: number }> = [];
+      
+      if (canAffordUpkeep) {
+        // Player can pay - deduct upkeep and reset failure counter
+        finalCurrency = currencyAfterGains - totalCurrencyUpkeep;
+        consecutiveFailedTurns = 0;
+      } else {
+        // Player cannot pay - increment failure counter
+        consecutiveFailedTurns += 1;
+        finalCurrency = Math.max(0, currencyAfterGains); // Ensure currency doesn't go negative
+        
+        // If 2 consecutive failed turns, disband units
+        if (consecutiveFailedTurns >= 2) {
+          // Calculate how much upkeep they can't pay
+          const unpaidUpkeep = totalCurrencyUpkeep - Math.max(0, currencyAfterGains);
+          
+          // Disband units starting with lowest tier (cheapest) until unpaid upkeep is covered
+          // Priority: Keep expensive units (high tier), disband cheap units (low tier) first
+          let remainingUnpaidUpkeep = unpaidUpkeep;
+          
+          for (const unit of userUnits) {
+            if (remainingUnpaidUpkeep <= 0) break;
+            
+            const unitTier = unit.tier ?? 2;
+            const upkeepPerUnit = getUnitUpkeep(unitTier);
+            const unitsNeededToDisband = Math.ceil(remainingUnpaidUpkeep / upkeepPerUnit);
+            const unitsToRemove = Math.min(unitsNeededToDisband, unit.quantity);
+            
+            if (unitsToRemove > 0) {
+              unitsToDisband.push({
+                unitId: unit.id,
+                quantityToRemove: unitsToRemove,
+              });
+              remainingUnpaidUpkeep -= unitsToRemove * upkeepPerUnit;
+            }
+          }
+        }
+      }
+
+      // Execute all updates in a transaction
+      await prisma.$transaction(async (tx) => {
+        // Disband units if needed
+        for (const { unitId, quantityToRemove } of unitsToDisband) {
+          const unit = await tx.armyUnit.findUnique({ where: { id: unitId } });
+          if (unit) {
+            if (unit.quantity <= quantityToRemove) {
+              // Delete the unit entirely
+              await tx.armyUnit.delete({ where: { id: unitId } });
+            } else {
+              // Reduce quantity
+              await tx.armyUnit.update({
+                where: { id: unitId },
+                data: { quantity: unit.quantity - quantityToRemove },
+              });
+            }
+          }
+        }
+        
+        // Update user's resources with gains, upkeep (if paid), and failure counter
+        await tx.resource.update({
+          where: {
+            realmId_userId: {
+              realmId,
+              userId: user.id,
+            },
           },
-        },
-        data: {
-          food: { increment: resourceGains.food - upkeepFood },
-          wood: { increment: resourceGains.wood },
-          stone: { increment: resourceGains.stone },
-          metal: { increment: resourceGains.metal },
-          livestock: { increment: resourceGains.livestock },
-          currency: { increment: resourceGains.currency },
-        },
+          data: {
+            food: { increment: resourceGains.food },
+            wood: { increment: resourceGains.wood },
+            stone: { increment: resourceGains.stone },
+            metal: { increment: resourceGains.metal },
+            livestock: { increment: resourceGains.livestock },
+            currency: finalCurrency, // Set directly to prevent negative
+            consecutiveFailedUpkeepTurns: consecutiveFailedTurns,
+          },
+        });
       });
     }
 
