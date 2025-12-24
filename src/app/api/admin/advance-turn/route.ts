@@ -273,21 +273,21 @@ export async function POST(request: Request) {
         
         // Update user's resources with gains, upkeep (if paid), and failure counter
         await tx.resource.update({
-          where: {
-            realmId_userId: {
-              realmId,
-              userId: user.id,
-            },
+        where: {
+          realmId_userId: {
+            realmId,
+            userId: user.id,
           },
-          data: {
+        },
+        data: {
             food: { increment: resourceGains.food },
-            wood: { increment: resourceGains.wood },
-            stone: { increment: resourceGains.stone },
-            metal: { increment: resourceGains.metal },
-            livestock: { increment: resourceGains.livestock },
+          wood: { increment: resourceGains.wood },
+          stone: { increment: resourceGains.stone },
+          metal: { increment: resourceGains.metal },
+          livestock: { increment: resourceGains.livestock },
             currency: finalCurrency, // Set directly to prevent negative
             consecutiveFailedUpkeepTurns: consecutiveFailedTurns,
-          },
+        },
         });
       });
     }

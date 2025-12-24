@@ -8,7 +8,8 @@ import { useNotification } from "@/components/Notification";
 import { useRealm } from "@/contexts/RealmContext";
 import RealmRequirement from "@/components/RealmRequirement";
 import UnitStatsModal from "@/components/UnitStatsModal";
-import { getUnitUpgradeCost } from "@/app/lib/game-config";
+import ConfirmationModal from "@/components/ConfirmationModal";
+import { getUnitUpgradeCost, getUnitUpkeep } from "@/app/lib/game-config";
 import { 
   PlusCircleIcon, 
   ArrowUpIcon, 
@@ -39,6 +40,7 @@ export default function ArmiesPage() {
   const [selectedUnitTier, setSelectedUnitTier] = useState<number | undefined>(undefined);
   const [selectedUnitQuantity, setSelectedUnitQuantity] = useState<number | undefined>(undefined);
   const [upgradingUnitId, setUpgradingUnitId] = useState<string | null>(null);
+  const [pendingUnitUpgrade, setPendingUnitUpgrade] = useState<{ unitId: string; armyId: string; currentTier: number; unitType: string } | null>(null);
   const [activeTab, setActiveTab] = useState<"overview" | "recruit" | "manage">("overview");
   
   // Unit types and costs
@@ -155,6 +157,16 @@ export default function ArmiesPage() {
         sum + (a.units?.reduce((s: number, u: any) => s + u.quantity, 0) || 0),
       0
     );
+  }, [armies]);
+
+  const totalUpkeep = useMemo(() => {
+    return armies.reduce((sum, a) => {
+      return sum + (a.units?.reduce((s: number, u: any) => {
+        const tier = u.tier || 2;
+        const upkeepPerUnit = getUnitUpkeep(tier);
+        return s + (upkeepPerUnit * u.quantity);
+      }, 0) || 0);
+    }, 0);
   }, [armies]);
 
   const unitImageMap: Record<string, string> = {
@@ -375,11 +387,25 @@ export default function ArmiesPage() {
     }
   };
 
-  const upgradeUnit = async (unitId: string, armyId: string, currentTier: number) => {
+  const upgradeUnit = (unitId: string, armyId: string, currentTier: number, unitType: string) => {
     const nextTier = currentTier + 1;
     const upgradeCost = getUnitUpgradeCost(nextTier);
     if (!resources || resources.currency < upgradeCost) {
       addNotification("error", `You need ${upgradeCost} currency to upgrade this unit to tier ${nextTier}`);
+      return;
+    }
+    setPendingUnitUpgrade({ unitId, armyId, currentTier, unitType });
+  };
+
+  const confirmUpgradeUnit = async () => {
+    if (!pendingUnitUpgrade) return;
+    
+    const { unitId, armyId, currentTier } = pendingUnitUpgrade;
+    const nextTier = currentTier + 1;
+    const upgradeCost = getUnitUpgradeCost(nextTier);
+    if (!resources || resources.currency < upgradeCost) {
+      addNotification("error", `You need ${upgradeCost} currency to upgrade this unit to tier ${nextTier}`);
+      setPendingUnitUpgrade(null);
       return;
     }
     setUpgradingUnitId(unitId);
@@ -412,6 +438,7 @@ export default function ArmiesPage() {
       addNotification("error", "Error upgrading unit");
     } finally {
       setUpgradingUnitId(null);
+      setPendingUnitUpgrade(null);
     }
   };
 
@@ -485,11 +512,11 @@ export default function ArmiesPage() {
   return (
     <RealmRequirement>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-background text-foreground p-4 md:p-8">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-medieval-pattern opacity-5"></div>
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-medieval-pattern opacity-5"></div>
 
         <div className="relative w-full max-w-7xl mx-auto">
-          {/* Header */}
+        {/* Header */}
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -500,8 +527,8 @@ export default function ArmiesPage() {
               Armies
             </h1>
             <p className="heading-4 text-steel-300 italic font-normal">
-              Command your forces, recruit units, and wage war across the realm
-            </p>
+            Command your forces, recruit units, and wage war across the realm
+          </p>
           </motion.div>
 
           {/* Stats Overview */}
@@ -514,7 +541,7 @@ export default function ArmiesPage() {
             <div className="modern-card p-6 text-center">
               <div className="text-4xl font-bold text-gold-400 mb-2">{armies.length}</div>
               <div className="text-sm text-steel-300 uppercase tracking-wider">Total Armies</div>
-            </div>
+        </div>
             <div className="modern-card p-6 text-center">
               <div className="text-4xl font-bold text-gold-400 mb-2">{totalUnits}</div>
               <div className="text-sm text-steel-300 uppercase tracking-wider">Total Units</div>
@@ -546,6 +573,31 @@ export default function ArmiesPage() {
                 <ResourceBadge icon={StoneIcon} label="Stone" value={resources.stone ?? 0} isSvg />
                 <ResourceBadge icon={MetalIcon} label="Metal" value={resources.metal ?? 0} isSvg />
                 <ResourceBadge icon={LivestockIcon} label="Livestock" value={resources.livestock ?? 0} isSvg />
+              </div>
+              <div className="mt-4 pt-4 border-t border-steel-700">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">⚔️</span>
+                    <span className="text-sm text-steel-300 uppercase tracking-wider">Total Unit Upkeep</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Image 
+                      src={CurrencyIcon} 
+                      alt="Currency"
+                      width={20}
+                      height={20}
+                      className="w-5 h-5"
+                    />
+                    <span className={`text-lg font-semibold ${totalUpkeep > (resources.currency ?? 0) ? 'text-crimson-300' : 'text-emerald-300'}`}>
+                      {totalUpkeep} / turn
+                    </span>
+                  </div>
+                </div>
+                {totalUpkeep > (resources.currency ?? 0) && (
+                  <div className="mt-2 text-xs text-crimson-400">
+                    ⚠️ Insufficient currency to pay upkeep next turn
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
@@ -592,24 +644,24 @@ export default function ArmiesPage() {
                   <h2 className="heading-3 mb-4 flex items-center gap-2">
                     <PlusCircleIcon className="w-6 h-6 text-gold-400" />
                     Create New Army
-                  </h2>
+            </h2>
                   <div className="flex gap-3">
-                    <input
+                <input
                       className="modern-input flex-1"
                       placeholder="Enter army name..."
-                      value={newArmyName}
-                      onChange={(e) => setNewArmyName(e.target.value)}
+                  value={newArmyName}
+                  onChange={(e) => setNewArmyName(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && createArmy()}
-                    />
-                    <button
+                />
+                <button
                       disabled={creating || !newArmyName.trim()}
-                      onClick={createArmy}
+                  onClick={createArmy}
                       className="modern-button px-8 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
+                >
                       {creating ? "Creating..." : "Create Army"}
-                    </button>
+                </button>
                   </div>
-                </div>
+              </div>
 
                 {/* Army List */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -631,8 +683,8 @@ export default function ArmiesPage() {
                           selectedArmyId === army.id
                             ? 'ring-2 ring-gold-500 shadow-xl'
                             : 'hover:shadow-lg'
-                        }`}
-                      >
+                    }`}
+                  >
                         <div className="flex items-center justify-between mb-4">
                           <h3 className="heading-4">{army.name}</h3>
                           <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30">
@@ -640,27 +692,27 @@ export default function ArmiesPage() {
                               {army.units?.reduce((s: number, u: any) => s + u.quantity, 0) || 0}
                             </span>
                             <span className="text-xs text-steel-400">units</span>
-                          </div>
-                        </div>
+                      </div>
+                      </div>
                         
                         {army.units && army.units.length > 0 ? (
                           <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
                             {army.units.map((unit: any) => {
                               const src = unitImageMap[unit.unitType];
                               if (!src) return null;
-                              return (
-                                <div
+                            return (
+                              <div
                                   key={unit.id}
                                   className="relative group"
-                                >
+                              >
                                   <div className="relative rounded-lg overflow-hidden border-2 border-gold-600/50 hover:border-gold-400 transition-all">
-                                    <Image
-                                      src={encodeURI(src)}
+                                <Image
+                                  src={encodeURI(src)}
                                       alt={unit.unitType}
                                       width={64}
                                       height={64}
                                       className="w-full h-auto bg-steel-900"
-                                    />
+                                />
                                     <div className="absolute -top-1 -right-1 bg-gold-600 text-steel-900 text-xs font-bold px-2 py-0.5 rounded-full border-2 border-gold-700 shadow-lg">
                                       {unit.quantity}
                                     </div>
@@ -670,18 +722,18 @@ export default function ArmiesPage() {
                                   </div>
                                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-steel-900 text-xs text-steel-200 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                                     {unit.unitType}
-                                  </div>
                                 </div>
-                              );
-                            })}
-                          </div>
+                              </div>
+                          );
+                        })}
+                      </div>
                         ) : (
                           <p className="body-text text-steel-400 text-center py-4">No units recruited yet</p>
                         )}
                       </motion.div>
                     ))
-                  )}
-                </div>
+                    )}
+                  </div>
               </motion.div>
             )}
 
@@ -698,33 +750,33 @@ export default function ArmiesPage() {
                   <h2 className="heading-3 mb-6">Recruit Units</h2>
                   
                   <div className="grid md:grid-cols-2 gap-6 mb-6">
-                    <div>
+                <div>
                       <label className="label-text mb-2 block">Select Army</label>
-                      <select
+                  <select
                         className="modern-input w-full"
-                        value={selectedArmyId}
-                        onChange={(e) => setSelectedArmyId(e.target.value)}
-                      >
+                    value={selectedArmyId}
+                    onChange={(e) => setSelectedArmyId(e.target.value)}
+                  >
                         <option value="">Choose an army...</option>
-                        {armies.map((a) => (
-                          <option key={a.id} value={a.id}>
-                            {a.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
+                    {armies.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
                       <label className="label-text mb-2 block">Quantity</label>
-                      <input
-                        type="number"
-                        min={1}
+                  <input
+                    type="number"
+                    min={1}
                         className="modern-input w-full"
-                        value={quantity}
-                        onChange={(e) =>
+                    value={quantity}
+                    onChange={(e) =>
                           setQuantity(Math.max(1, parseInt(e.target.value || "1", 10)))
-                        }
-                      />
-                    </div>
+                    }
+                  />
+                </div>
                   </div>
 
                   {/* Unit Type Selection */}
@@ -745,7 +797,7 @@ export default function ArmiesPage() {
                                 : 'bg-steel-800/30 border-steel-700 hover:border-gold-600/50'
                             }`}
                           >
-                            <button
+                  <button
                               onClick={() => setUnitType(type)}
                               className="w-full"
                             >
@@ -785,12 +837,12 @@ export default function ArmiesPage() {
                               title="View unit stats"
                             >
                               <InformationCircleIcon className="w-4 h-4 text-gold-400" />
-                            </button>
+                  </button>
                           </div>
                         );
                       })}
-                    </div>
-                  </div>
+                </div>
+              </div>
 
                   {/* Cost Display */}
                   <div className="bg-steel-900/50 rounded-xl p-6 mb-6">
@@ -838,22 +890,22 @@ export default function ArmiesPage() {
                         cost={totalCost.livestock}
                         isSvg 
                       />
-                    </div>
-                  </div>
+                </div>
+                </div>
 
                   {/* Warnings */}
-                  {!hasResources && (
+                {!hasResources && (
                     <div className="flex items-center gap-3 p-4 rounded-lg bg-crimson-500/10 border border-crimson-500/30 mb-4">
                       <ExclamationTriangleIcon className="w-6 h-6 text-crimson-400" />
                       <span className="text-crimson-300">Insufficient resources to recruit these units</span>
-                    </div>
-                  )}
-                  {atOrOverCap && (
+                  </div>
+                )}
+                {atOrOverCap && (
                     <div className="flex items-center gap-3 p-4 rounded-lg bg-crimson-500/10 border border-crimson-500/30 mb-4">
                       <ExclamationTriangleIcon className="w-6 h-6 text-crimson-400" />
                       <span className="text-crimson-300">Population cap reached. Upgrade cities to increase capacity.</span>
-                    </div>
-                  )}
+                  </div>
+                )}
 
                   {/* Recruit Button */}
                   <button
@@ -864,7 +916,7 @@ export default function ArmiesPage() {
                     <PlusCircleIcon className="w-6 h-6" />
                     Recruit {quantity} {unitType}
                   </button>
-                </div>
+              </div>
               </motion.div>
             )}
 
@@ -876,15 +928,15 @@ export default function ArmiesPage() {
                 exit={{ opacity: 0, x: 20 }}
                 className="space-y-6"
               >
-                {!selectedArmyId ? (
+          {!selectedArmyId ? (
                   <div className="modern-card p-12 text-center">
                     <div className="text-6xl mb-4">👥</div>
                     <h3 className="heading-3 mb-2">No Army Selected</h3>
                     <p className="body-text text-steel-400">Select an army from the overview tab to manage its units</p>
                   </div>
-                ) : (
+          ) : (
                   armies
-                    .filter((a) => a.id === selectedArmyId)
+                .filter((a) => a.id === selectedArmyId)
                     .map((army) => (
                       <div key={army.id} className="modern-card p-6">
                         <div className="flex items-center justify-between mb-6">
@@ -894,8 +946,8 @@ export default function ArmiesPage() {
                               {army.units?.reduce((s: number, u: any) => s + u.quantity, 0) || 0}
                             </span>
                             <span className="text-sm text-steel-400">total units</span>
-                          </div>
-                        </div>
+                      </div>
+                      </div>
 
                         {army.units && army.units.length > 0 ? (
                           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -907,7 +959,7 @@ export default function ArmiesPage() {
                               const canUpgrade = tier < 5 && resources && resources.currency >= upgradeCost;
                               if (!src) return null;
                               
-                              return (
+                            return (
                                 <motion.div
                                   key={unit.id}
                                   initial={{ opacity: 0, scale: 0.9 }}
@@ -921,22 +973,22 @@ export default function ArmiesPage() {
                                       setSelectedUnitTier(tier);
                                       setSelectedUnitQuantity(unit.quantity);
                                     }}
-                                  >
-                                    <Image
-                                      src={encodeURI(src)}
+                              >
+                                <Image
+                                  src={encodeURI(src)}
                                       alt={unit.unitType}
                                       width={80}
                                       height={80}
                                       className="w-full h-auto rounded-lg border border-gold-600 bg-steel-900"
-                                    />
+                                />
                                     <div className="absolute -top-2 -right-2 bg-gold-600 text-steel-900 text-sm font-bold px-2.5 py-1 rounded-full border-2 border-gold-700 shadow-lg">
                                       {unit.quantity}
-                                    </div>
+                                </div>
                                     <div className="absolute -top-2 -left-2 bg-steel-800 text-gold-300 text-sm font-bold px-2 py-1 rounded border border-gold-600">
                                       T{tier}
-                                    </div>
-                                  </div>
-                                  
+                              </div>
+        </div>
+
                                   <div className="mt-2 text-center">
                                     <div className="text-xs text-steel-300 font-medium truncate mb-2">
                                       {unit.unitType}
@@ -944,7 +996,7 @@ export default function ArmiesPage() {
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        upgradeUnit(unit.id, army.id, tier);
+                                        upgradeUnit(unit.id, army.id, tier, unit.unitType);
                                       }}
                                       disabled={!canUpgrade || upgradingUnitId === unit.id}
                                       className={`w-full text-xs px-3 py-2 rounded-lg font-medium transition-all flex items-center justify-center gap-1 ${
@@ -967,16 +1019,16 @@ export default function ArmiesPage() {
                                         </>
                                       )}
                                     </button>
-                                  </div>
+                  </div>
                                 </motion.div>
-                              );
-                            })}
-                          </div>
+              );
+            })}
+          </div>
                         ) : (
                           <div className="text-center py-12">
                             <div className="text-6xl mb-4">⚔️</div>
                             <p className="body-text text-steel-400">No units in this army yet</p>
-                          </div>
+        </div>
                         )}
                       </div>
                     ))
@@ -984,9 +1036,9 @@ export default function ArmiesPage() {
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+      </div>
 
-        <NotificationContainer />
+      <NotificationContainer />
         {selectedUnitType && (
           <UnitStatsModal
             unitType={selectedUnitType}
@@ -1000,7 +1052,20 @@ export default function ArmiesPage() {
             quantity={selectedUnitQuantity}
           />
         )}
-      </div>
+
+        {/* Unit Upgrade Confirmation Modal */}
+        {pendingUnitUpgrade && (
+          <ConfirmationModal
+            isOpen={!!pendingUnitUpgrade}
+            onClose={() => setPendingUnitUpgrade(null)}
+            onConfirm={confirmUpgradeUnit}
+            title="Confirm Unit Upgrade"
+            message={`Are you sure you want to upgrade ${pendingUnitUpgrade.unitType} from Tier ${pendingUnitUpgrade.currentTier} to Tier ${pendingUnitUpgrade.currentTier + 1}? This will cost: ${getUnitUpgradeCost(pendingUnitUpgrade.currentTier + 1)} currency`}
+            confirmText="Upgrade"
+            cancelText="Cancel"
+          />
+        )}
+    </div>
     </RealmRequirement>
   );
 }

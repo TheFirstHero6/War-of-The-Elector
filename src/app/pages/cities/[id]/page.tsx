@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useNotification } from "@/components/Notification";
 import Link from "next/link";
-import { MAX_BUILDINGS_PER_CITY } from "@/app/lib/game-config";
+import { MAX_BUILDINGS_PER_CITY, BUILDING_UPGRADE_COSTS } from "@/app/lib/game-config";
+import ConfirmationModal from "@/components/ConfirmationModal";
 
 interface City {
   id: string;
@@ -142,6 +143,8 @@ export default function CityDetailsPage() {
   const [isUpgradingBuilding, setIsUpgradingBuilding] = useState<string | null>(
     null
   );
+  const [pendingBuilding, setPendingBuilding] = useState<BuildingTemplate | null>(null);
+  const [pendingBuildingUpgrade, setPendingBuildingUpgrade] = useState<{ buildingId: string; currentTier: number; buildingName: string } | null>(null);
   const [resources, setResources] = useState({
     wood: 0,
     stone: 0,
@@ -263,15 +266,21 @@ export default function CityDetailsPage() {
     }
   };
 
-  const buildBuilding = async (buildingTemplate: BuildingTemplate) => {
-    setIsBuilding(buildingTemplate.name);
+  const buildBuilding = (buildingTemplate: BuildingTemplate) => {
+    setPendingBuilding(buildingTemplate);
+  };
+
+  const confirmBuildBuilding = async () => {
+    if (!pendingBuilding) return;
+    
+    setIsBuilding(pendingBuilding.name);
     try {
       const response = await fetch(`/api/cities/${cityId}/build`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: buildingTemplate.name,
-          rarity: buildingTemplate.rarity,
+          name: pendingBuilding.name,
+          rarity: pendingBuilding.rarity,
         }),
       });
 
@@ -289,6 +298,7 @@ export default function CityDetailsPage() {
       addNotification("error", "Failed to build structure");
     } finally {
       setIsBuilding(null);
+      setPendingBuilding(null);
     }
   };
 
@@ -341,9 +351,24 @@ export default function CityDetailsPage() {
     }
   };
 
-  const upgradeBuilding = async (buildingId: string, currentTier: number) => {
+  const upgradeBuilding = (buildingId: string, currentTier: number) => {
     if (currentTier >= 4) {
       addNotification("error", "Building is already at maximum tier (4)");
+      return;
+    }
+    const building = city?.buildings.find(b => b.id === buildingId);
+    if (building) {
+      setPendingBuildingUpgrade({ buildingId, currentTier, buildingName: building.name });
+    }
+  };
+
+  const confirmUpgradeBuilding = async () => {
+    if (!pendingBuildingUpgrade) return;
+    
+    const { buildingId, currentTier } = pendingBuildingUpgrade;
+    if (currentTier >= 4) {
+      addNotification("error", "Building is already at maximum tier (4)");
+      setPendingBuildingUpgrade(null);
       return;
     }
 
@@ -370,6 +395,7 @@ export default function CityDetailsPage() {
       addNotification("error", "Failed to upgrade building");
     } finally {
       setIsUpgradingBuilding(null);
+      setPendingBuildingUpgrade(null);
     }
   };
 
@@ -604,19 +630,36 @@ export default function CityDetailsPage() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-end gap-2">
                       {building.tier < 4 && (
-                        <button
-                          onClick={() =>
-                            upgradeBuilding(building.id, building.tier)
-                          }
-                          disabled={isUpgradingBuilding === building.id}
-                          className="medieval-button text-sm px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {isUpgradingBuilding === building.id
-                            ? "Upgrading..."
-                            : `Upgrade to T${building.tier + 1}`}
-                        </button>
+                        <>
+                          <div className="text-xs text-medieval-steel-400 text-right">
+                            {(() => {
+                              const nextTier = building.tier + 1;
+                              const upgradeCost = BUILDING_UPGRADE_COSTS[nextTier as keyof typeof BUILDING_UPGRADE_COSTS];
+                              if (!upgradeCost) return "";
+                              const costParts = [];
+                              if (upgradeCost.currency > 0) costParts.push(`${upgradeCost.currency} currency`);
+                              if (upgradeCost.wood > 0) costParts.push(`${upgradeCost.wood} wood`);
+                              if (upgradeCost.stone > 0) costParts.push(`${upgradeCost.stone} stone`);
+                              if (upgradeCost.metal > 0) costParts.push(`${upgradeCost.metal} metal`);
+                              if (upgradeCost.food > 0) costParts.push(`${upgradeCost.food} food`);
+                              if (upgradeCost.livestock > 0) costParts.push(`${upgradeCost.livestock} livestock`);
+                              return `Cost: ${costParts.join(", ")}`;
+                            })()}
+                          </div>
+                          <button
+                            onClick={() =>
+                              upgradeBuilding(building.id, building.tier)
+                            }
+                            disabled={isUpgradingBuilding === building.id}
+                            className="medieval-button text-sm px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isUpgradingBuilding === building.id
+                              ? "Upgrading..."
+                              : `Upgrade to T${building.tier + 1}`}
+                          </button>
+                        </>
                       )}
                       {building.tier >= 4 && (
                         <span className="text-xs text-medieval-gold-400 bg-medieval-gold-600/20 px-3 py-1 rounded-full border border-medieval-gold-600">
@@ -728,6 +771,47 @@ export default function CityDetailsPage() {
           </div>
         </div>
       </div>
+
+      {/* Building Construction Confirmation Modal */}
+      {pendingBuilding && (
+        <ConfirmationModal
+          isOpen={!!pendingBuilding}
+          onClose={() => setPendingBuilding(null)}
+          onConfirm={confirmBuildBuilding}
+          title="Confirm Building Construction"
+          message={`Are you sure you want to build ${pendingBuilding.name}? This will cost: ${Object.entries(pendingBuilding.cost)
+            .filter(([_, value]) => value > 0)
+            .map(([resource, value]) => `${value} ${resource}`)
+            .join(", ")}`}
+          confirmText="Build"
+          cancelText="Cancel"
+        />
+      )}
+
+      {/* Building Upgrade Confirmation Modal */}
+      {pendingBuildingUpgrade && (
+        <ConfirmationModal
+          isOpen={!!pendingBuildingUpgrade}
+          onClose={() => setPendingBuildingUpgrade(null)}
+          onConfirm={confirmUpgradeBuilding}
+          title="Confirm Building Upgrade"
+          message={`Are you sure you want to upgrade ${pendingBuildingUpgrade.buildingName} from Tier ${pendingBuildingUpgrade.currentTier} to Tier ${pendingBuildingUpgrade.currentTier + 1}? This will cost: ${(() => {
+            const nextTier = pendingBuildingUpgrade.currentTier + 1;
+            const upgradeCost = BUILDING_UPGRADE_COSTS[nextTier as keyof typeof BUILDING_UPGRADE_COSTS];
+            if (!upgradeCost) return "Unknown cost";
+            const costParts = [];
+            if (upgradeCost.currency > 0) costParts.push(`${upgradeCost.currency} currency`);
+            if (upgradeCost.wood > 0) costParts.push(`${upgradeCost.wood} wood`);
+            if (upgradeCost.stone > 0) costParts.push(`${upgradeCost.stone} stone`);
+            if (upgradeCost.metal > 0) costParts.push(`${upgradeCost.metal} metal`);
+            if (upgradeCost.food > 0) costParts.push(`${upgradeCost.food} food`);
+            if (upgradeCost.livestock > 0) costParts.push(`${upgradeCost.livestock} livestock`);
+            return costParts.join(", ");
+          })()}`}
+          confirmText="Upgrade"
+          cancelText="Cancel"
+        />
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { getUnitStats } from "@/app/lib/unit-data";
+import { getUnitUpkeep, getUnitUpgradeCost } from "@/app/lib/game-config";
 
 interface UnitStatsModalProps {
   unitType: string;
@@ -115,7 +116,19 @@ export default function UnitStatsModal({
                         <div className="text-medieval-steel-200">{currentStats.range}</div>
                       </div>
                     )}
+                    <div>
+                      <div className="text-medieval-gold-300 font-semibold mb-1">Upkeep per Unit</div>
+                      <div className="text-medieval-steel-200">{getUnitUpkeep(currentTier)} currency / turn</div>
+                    </div>
                   </div>
+                  {currentTier < 5 && (
+                    <div className="mt-4 pt-4 border-t border-medieval-gold-600/30">
+                      <div className="text-medieval-gold-300 font-semibold mb-2">Upgrade to Tier {currentTier + 1}</div>
+                      <div className="text-medieval-steel-200">
+                        Cost: {getUnitUpgradeCost(currentTier + 1)} currency
+                      </div>
+                    </div>
+                  )}
                   <div className="mt-4">
                     <div className="text-medieval-gold-300 font-semibold mb-2">Hit Targets</div>
                     <div className="grid grid-cols-5 gap-2">
