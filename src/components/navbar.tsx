@@ -88,6 +88,7 @@ export default function Navbar() {
     { href: "/pages/rules", label: "Rules", icon: "📜" },
     { href: "/pages/cities", label: "Cities", icon: "🏘️" },
     { href: "/pages/armies", label: "Armies", icon: "⚔️" },
+    { href: "/pages/trading", label: "Trading", icon: "💱" },
     { href: "/pages/realms", label: "Realms", icon: "🌍" },
     { href: "/pages/settings", label: "Settings", icon: "⚙️" },
     { href: "/", label: "Home", icon: "🏠" },

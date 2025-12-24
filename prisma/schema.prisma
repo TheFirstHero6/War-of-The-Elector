@@ -21,6 +21,7 @@ model User {
   armies          Army[]
   ownedRealms     Realm[]        @relation("RealmOwner")
   realmMemberships RealmMember[]
+  tradeOffers     TradeOffer[]
 }
 
 enum RealmRole {
@@ -43,6 +44,7 @@ model Realm {
   cities      City[]
   armies      Army[]
   resources   Resource[]
+  tradeOffers TradeOffer[]
 }
 
 model RealmMember {
@@ -122,4 +124,34 @@ model ArmyUnit {
   tier      Int      @default(2)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum ResourceTypeEnum {
+  wood
+  stone
+  food
+  currency
+  metal
+  livestock
+}
+
+model TradeOffer {
+  id               String          @id @default(cuid())
+  creatorId        String
+  realmId          String
+  creator          User            @relation(fields: [creatorId], references: [id])
+  realm            Realm           @relation(fields: [realmId], references: [id], onDelete: Cascade)
+  givingResource   ResourceTypeEnum
+  givingAmount     Float
+  receivingResource ResourceTypeEnum
+  receivingAmount  Float
+  maxUses          Int
+  usesRemaining    Int
+  isActive         Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([realmId])
+  @@index([creatorId])
+  @@index([isActive])
 }

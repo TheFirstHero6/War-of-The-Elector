@@ -140,6 +140,7 @@ export async function GET(request: Request) {
     // Return all user data in one response
     const responseData = {
       // User profile data
+      userId: user.id,
       userpic: userImageUrl,
       username: user.name,
       role: userRole,
