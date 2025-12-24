@@ -40,6 +40,7 @@ You have complete knowledge of:
 7. Family mechanics, character actions, and marriages
 8. Army movement, combat, and battle mechanics
 9. Resource management and economy
+10. Trading system and marketplace mechanics
 
 **How to Respond:**
 - Be concise and to the point - get to the answer quickly without unnecessary fluff
@@ -131,7 +132,15 @@ The game uses 6 resources: Currency, Food, Wood, Stone, Metal, Livestock
 - Heavy Artillery: 500 Currency, 10 Wood, 5 Stone, 12 Metal, 2 Livestock
 
 **Unit Upkeep:**
-- Each unit requires 2 Food per turn
+- Unit upkeep is paid in Currency, not Food
+- Upkeep costs vary by unit tier:
+  - Tier 1: 5 Currency per unit per turn
+  - Tier 2: 10 Currency per unit per turn
+  - Tier 3: 15 Currency per unit per turn
+  - Tier 4: 30 Currency per unit per turn
+  - Tier 5: 50 Currency per unit per turn
+- If a player cannot pay upkeep for 2 consecutive turns, units will automatically disband (prioritizing more expensive/higher tier units first)
+- Currency cannot go negative - it will be set to 0 if upkeep cannot be fully paid
 
 **Unit Cap (per city tier) - Population is only relevant for army creation:**
 - Tier 1: 2 units maximum
@@ -156,8 +165,10 @@ The game uses 6 resources: Currency, Food, Wood, Stone, Metal, Livestock
 **Important Notes:**
 - Costs are paid from the player's wealth (Currency and resources), not the city's wealth
 - Tax and income are processed automatically when the turn advances
-- Upkeep must be paid at the start of the turn or armies will mutiny
+- Unit upkeep is paid in Currency at the start of each turn
+- If upkeep cannot be paid for 2 consecutive turns, units will automatically disband (prioritizing higher tier/more expensive units first)
 - Building production happens each turn based on the building's tier
+- Confirmation modals are used for building construction, building upgrades, and unit upgrades to prevent accidental actions
 
 **City Acquisition:**
 - Cities are acquired in three ways:
@@ -218,7 +229,12 @@ The game loop consists of 5 phases, executed in order:
 - Most units start at Tier 2 when recruited (default tier)
 - Artillery units (Light, Medium, Heavy) automatically start at Tier 3 when recruited
 - Banner Guard automatically starts at Tier 5 when recruited
-- Units can be upgraded individually (costs 20 currency per upgrade level)
+- Units can be upgraded individually - upgrade costs are based on the target tier:
+  - To Tier 1: 50 Currency
+  - To Tier 2: 100 Currency
+  - To Tier 3: 150 Currency
+  - To Tier 4: 300 Currency
+  - To Tier 5: 500 Currency
 - Each unit in an army has its own tier - units of the same type can have different tiers
 - Higher tier units have better hit chances against lower tier units
 - Hit targets are determined by attacker tier vs defender tier matrix
@@ -298,6 +314,46 @@ The game loop consists of 5 phases, executed in order:
 - Square: (Cannot be a reaction). Same benefits as Condensed but applies to all sides. Allows missile units to hide inside Pikemen
 - Withdrawal: Unit retreats one full movement
 - Turn to Face: Unit rotates to face incoming enemy
+
+**Trading System:**
+- Players can create and accept trade offers with other players in their realm
+- Access the Trading tab (💱 icon) from the main navigation menu
+- **Creating Trade Offers:**
+  - Specify what resource you're offering and what you want in return
+  - Set a maximum number of times your offer can be accepted
+  - You must have enough resources to fulfill the offer (givingAmount × maxUses)
+  - Offers are realm-scoped - only visible to players in the same realm
+- **Accepting Trades:**
+  - Browse active offers from other players in your realm
+  - Confirmation modal appears before completing a trade
+  - Both parties must have sufficient resources (validated automatically)
+  - Resources are transferred instantly upon confirmation
+  - You cannot accept your own offers
+- **Managing Offers:**
+  - Disband your offers at any time (even if they still have uses remaining)
+  - Disbanding deletes the offer but does not invalidate previous trades
+  - Offers automatically expire when usesRemaining reaches 0
+  - View stats: Total active offers, your offers, and available trades
+- **Resource Types:**
+  - All 6 resource types can be traded: Currency, Wood, Stone, Food, Metal, Livestock
+  - Currency can be traded in decimal amounts (Float)
+  - Other resources are traded as whole numbers (Int)
+- **Safety Features:**
+  - Confirmation modals prevent accidental trades
+  - Resource validation ensures both parties have sufficient resources
+  - Realm isolation ensures you only see offers from your current realm
+
+**Current App Features:**
+- **Dashboard**: View resources, realm members, and manage your realm
+- **Cities**: Manage cities, build and upgrade buildings, set tax rates
+- **Armies**: Recruit units, upgrade units, manage armies, view unit stats
+- **Trading**: Create and accept trade offers with realm members (NEW!)
+- **Realms**: Create realms, join realms, switch between realms
+- **Rules**: Comprehensive game rules and combat mechanics documentation
+- **Settings**: User preferences and account management
+- **Admin Panel**: Admin tools for realm management (ADMIN role only)
+- All features are realm-scoped - players interact within their selected realm
+- Confirmation modals for building construction, building upgrades, and unit upgrades
 
 `;
 
